@@ -1,2 +1,8 @@
 # Tó Ferreira Discord Bot
-a
+
+|    Comando   |                 Descrição                |
+|:------------:|:----------------------------------------:|
+| help         | Lista de comandos completa do servidor   |
+| stats        | Estatísticas                             |
+
+
