@@ -12,3 +12,9 @@ node_modules/diagnostics/
 node_modules/discord.io/
 
 node_modules/
+
+*.txt
+
+*.jpg
+
+*.pdf

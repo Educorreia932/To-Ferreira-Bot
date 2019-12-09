@@ -1,10 +1,15 @@
 import collections
 import discord
+import requests
+
 from discord.ext import commands
+from pdf2image import convert_from_path
 
 bot = commands.Bot(command_prefix='$')
+token_file = "token.txt"
 
-TOKEN = "NjE2MjgzNjE5Njg1Njk1NjE3.Xe4rUg.HmqoudfTj_HNLGDYSIlRm8GmVxY"
+with open(token_file) as f:
+        TOKEN = f.read()
 
 @bot.event
 async def on_ready():
@@ -12,22 +17,6 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
-
-@bot.command()
-async def add(ctx, a: int, b: int):
-    await ctx.send(a+b)
-
-@bot.command()
-async def multiply(ctx, a: int, b: int):
-    await ctx.send(a*b)
-
-@bot.command()
-async def greet(ctx):
-    await ctx.send(":smiley: :wave: Hello, there!")
-
-@bot.command()
-async def cat(ctx):
-    await ctx.send("https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif")
 
 @bot.command()
 async def info(ctx):
@@ -48,12 +37,9 @@ bot.remove_command('help')
 
 @bot.command()
 async def help(ctx):
-    embed = discord.Embed(title="nice bot", description="A Very Nice bot. List of commands are:", color=0xeee657)
+    embed = discord.Embed(title = "Tó Ferreira", description = "A Very Nice bot. List of commands are:", color=0xeee657)
 
-    embed.add_field(name = "$add X Y", value="Gives the addition of **X** and **Y**", inline=False)
-    embed.add_field(name = "$multiply X Y", value = "Gives the multiplication of **X** and **Y**", inline=False)
-    embed.add_field(name = "$greet", value = "Gives a nice greet message", inline=False)
-    embed.add_field(name = "$cat", value = "Gives a cute cat gif to lighten up the mood.", inline=False)
+    embed.add_field(name = "$stats", value = "Gives stats about messages/emojis", inline = False)
     embed.add_field(name = "$info", value = "Gives a little info about the bot", inline=False)
     embed.add_field(name = "$help", value = "Gives this message", inline=False)
 
@@ -109,7 +95,19 @@ async def stats(ctx, mode):
         for emoji in emojis:    
             msg += str(counter) + "º) " + str(emoji) + " : " + str(emojis[emoji]) + "\n"
             counter += 1
-            
+                    
     await ctx.send(msg)
+    
+@bot.command()
+async def ementa(ctx):
+    url = "https://sigarra.up.pt/sasup/pt/web_gessi_docs.download_file?p_name=F-895735909/Plano%20Ementas_Cant%20S.%20Jo%E3o_%20DEZ%20[20112019].pdf"
+    r = requests.get(url)
+    open("output.pdf", 'wb').write(r.content)
+    
+    pages = convert_from_path("output.pdf", 500)
+    
+    for page in pages:
+        page.save('out.jpg', 'JPEG')        
+        await ctx.send(file = discord.File("out.jpg"))
     
 bot.run(TOKEN)
