@@ -4,6 +4,8 @@ from discord.ext import commands
 
 bot = commands.Bot(command_prefix='$')
 
+TOKEN = "NjE2MjgzNjE5Njg1Njk1NjE3.Xe4rUg.HmqoudfTj_HNLGDYSIlRm8GmVxY"
+
 @bot.event
 async def on_ready():
     print('Logged in as')
@@ -58,27 +60,56 @@ async def help(ctx):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def stats(ctx):  
-    print("stats incoming")
+async def stats(ctx, mode):  
+    print("Stats incoming")
     channel = bot.get_channel(615941696072450055)
-    users = {}
-    msg = "**Number of messages per author:**\n"
     counter = 1
     
-    async for message in channel.history(limit = 50000):
-        if (message.author.name not in users):
-            users[message.author.name] = 1
+    msg = "Modo incorreto, vai para Campo Alegre rapaz."
+    
+    if mode == "messages":
+        users = {}
+        msg = "**Number of messages per author:**\n"
         
-        else:
-            users[message.author.name] += 1
+        async for message in channel.history(limit = 50000):
+            if (message.author.name not in users):
+                users[message.author.name] = 1
+            
+            else:
+                users[message.author.name] += 1
+            
+        sorted_users = sorted(users.items(), key=lambda kv: kv[1], reverse = True)
+        users = collections.OrderedDict(sorted_users)
+            
+        for user in users:
+            msg += str(counter) + "º) " + user + ": " + str(users[user]) + "\n"
+            counter += 1
+            
+    if mode == "emojis":
+        emojis = {i : 0 for i in bot.emojis}
+        emojis["👌"] = 0
+        emojis["❤"] = 0
+        emojis["🤔"] = 0
+        emojis["💦"] = 0
+        emojis["👍"] = 0
         
-    sorted_users = sorted(users.items(), key=lambda kv: kv[1], reverse = True)
-    users = collections.OrderedDict(sorted_users)
+        msg = "**Number of times that each emoji was used\n**"
         
-    for user in users:
-        msg += str(counter) + "º) " + user + ": " + str(users[user]) + "\n"
-        counter += 1
-        
+        async for message in channel.history(limit = 50000):
+            for reaction in message.reactions:
+                for n in range(reaction.count):
+                    try:
+                        emojis[reaction.emoji] += 1
+                    except:
+                        continue                        
+
+        sorted_emojis = sorted(emojis.items(), key=lambda kv: kv[1], reverse = True)
+        emojis = collections.OrderedDict(sorted_emojis)
+
+        for emoji in emojis:    
+            msg += str(counter) + "º) " + str(emoji) + " : " + str(emojis[emoji]) + "\n"
+            counter += 1
+            
     await ctx.send(msg)
     
-bot.run("")
+bot.run(TOKEN)
