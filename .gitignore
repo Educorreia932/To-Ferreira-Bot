@@ -18,3 +18,9 @@ node_modules/
 *.jpg
 
 *.pdf
+
+__pycache__/
+
+*.xlsx
+
+teste.py

@@ -3,7 +3,7 @@ import discord
 import requests
 
 from discord.ext import commands
-from pdf2image import convert_from_path
+from extract import excel
 
 bot = commands.Bot(command_prefix='$')
 token_file = "token.txt"
@@ -47,7 +47,7 @@ async def help(ctx):
 
 @bot.command()
 async def stats(ctx, mode):  
-    print("Stats incoming")
+    print("Retrieving stats...")
     channel = bot.get_channel(615941696072450055)
     counter = 1
     
@@ -95,19 +95,31 @@ async def stats(ctx, mode):
         for emoji in emojis:    
             msg += str(counter) + "º) " + str(emoji) + " : " + str(emojis[emoji]) + "\n"
             counter += 1
-                    
+            
+    print("Stats completed!")
+            
     await ctx.send(msg)
     
 @bot.command()
-async def ementa(ctx):
-    url = "https://sigarra.up.pt/sasup/pt/web_gessi_docs.download_file?p_name=F-895735909/Plano%20Ementas_Cant%20S.%20Jo%E3o_%20DEZ%20[20112019].pdf"
+async def ementa(ctx, school):
+    print("Retrieving menu...")
+    
+    if school == "FMUP":
+        url = "https://sigarra.up.pt/sasup/pt/web_gessi_docs.download_file?p_name=F-895735909/Plano%20Ementas_Cant%20S.%20Jo%E3o_%20DEZ%20[20112019].pdf"
+    
+    elif school == "FEUP":
+        url = "https://sigarra.up.pt/sasup/pt/web_gessi_docs.download_file?p_name=F-249413138/Ementas%20de%2009-12%20a%2005-01-2020%20Engenharia_validada.pdf"
+        
+    else:
+        await ctx.send("Modo incorreto, vai para Campo Alegre rapaz.")
+    
     r = requests.get(url)
     open("output.pdf", 'wb').write(r.content)
+        
+    # await ctx.send(extract("output.pdf"))
     
-    pages = convert_from_path("output.pdf", 500)
+    await ctx.send("```\n" + excel() + "\n```")
     
-    for page in pages:
-        page.save('out.jpg', 'JPEG')        
-        await ctx.send(file = discord.File("out.jpg"))
+    print("Menu completed!")
     
 bot.run(TOKEN)
