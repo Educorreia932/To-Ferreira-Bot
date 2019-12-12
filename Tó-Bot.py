@@ -9,7 +9,7 @@ bot = commands.Bot(command_prefix='$')
 token_file = "token.txt"
 
 with open(token_file) as f:
-        TOKEN = f.read()
+    TOKEN = f.read()
 
 @bot.event
 async def on_ready():
@@ -118,7 +118,7 @@ async def ementa(ctx, school):
         
     # await ctx.send(extract("output.pdf"))
     
-    await ctx.send("```\n" + excel() + "\n```")
+    await ctx.send("```\n" + excel(school) + "\n```")
     
     print("Menu completed!")
     
