@@ -3,7 +3,7 @@ import discord
 import requests
 
 from discord.ext import commands
-from extract import excel
+from extract import excel, image
 
 bot = commands.Bot(command_prefix='$')
 token_file = "token.txt"
@@ -116,9 +116,10 @@ async def ementa(ctx, school):
     r = requests.get(url)
     open("output.pdf", 'wb').write(r.content)
         
-    # await ctx.send(extract("output.pdf"))
+    # Converts the menu table to an image
+    image(school, excel(school))
     
-    await ctx.send("```\n" + excel(school) + "\n```")
+    await ctx.send(file = discord.File(school + ".png"))
     
     print("Menu completed!")
     

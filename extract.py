@@ -1,4 +1,5 @@
 from openpyxl import load_workbook
+from PIL import Image, ImageDraw
 from texttable import Texttable
 
 def excel(school):
@@ -53,5 +54,21 @@ def excel(school):
     t = Texttable()
     t.add_rows([dias, carne, peixe, vegetariano])
 
-    return t.draw()[0:1980]
+    return t.draw()
 
+def image(school, table):
+    # let's draw the text we got on an image
+    img = Image.new('RGB', (1000, 600), color=(0x3F, 0x3F, 0x3F))
+    d = ImageDraw.Draw(img)
+    
+    # write the text to the created image
+    # string_result should contain a string with
+    # all the text on the table, line by line (lines
+    # separated by '\n')
+    d.text((10, 10), table, fill=(0xE3, 0xE3, 0xE3))
+    img.save(school + ".png")
+    
+    # after this you only need to post the image
+    # it's a light weight image (easier to search for)
+    # seems a lot better than plain text because it doesn't
+    # break on different resolutions
