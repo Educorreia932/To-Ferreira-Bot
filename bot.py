@@ -1,9 +1,9 @@
 import collections
 import discord
-import requests
 
 from discord.ext import commands
-from extract import excel, image
+from get_menu_pdf import get_menu_pdf
+from pdf2image import convert_from_path
 
 bot = commands.Bot(command_prefix='$')
 token_file = "token.txt"
@@ -39,9 +39,10 @@ bot.remove_command('help')
 async def help(ctx):
     embed = discord.Embed(title = "Tó Ferreira", description = "A Very Nice bot. List of commands are:", color=0xeee657)
 
+    #  ementa
     embed.add_field(name = "$stats", value = "Gives stats about messages/emojis", inline = False)
-    embed.add_field(name = "$info", value = "Gives a little info about the bot", inline=False)
-    embed.add_field(name = "$help", value = "Gives this message", inline=False)
+    embed.add_field(name = "$info", value = "Gives a little info about the bot", inline = False)
+    embed.add_field(name = "$help", value = "Gives this message", inline = False)
 
     await ctx.send(embed=embed)
 
@@ -98,29 +99,28 @@ async def stats(ctx, mode):
             
     print("Stats completed!")
             
-    await ctx.send(msg)
+    await ctx.send(msg[0:1990])
     
 @bot.command()
 async def ementa(ctx, school):
     print("Retrieving menu...")
     
-    if school == "FMUP":
-        url = "https://sigarra.up.pt/sasup/pt/web_gessi_docs.download_file?p_name=F-895735909/Plano%20Ementas_Cant%20S.%20Jo%E3o_%20DEZ%20[20112019].pdf"
+    if school != "FEUP" and school != "FMUP":
+        await ctx.send("Modo incorreto, vai para Campo Alegre rapaz.")    
+
+    get_menu_pdf(school)
     
-    elif school == "FEUP":
-        url = "https://sigarra.up.pt/sasup/pt/web_gessi_docs.download_file?p_name=F-249413138/Ementas%20de%2009-12%20a%2005-01-2020%20Engenharia_validada.pdf"
+    print("Converting to image...")
+    
+    pages = convert_from_path("menu.pdf", first_page = 2, last_page = 3)
+    
+    for page in pages:
+        page.save("menu.jpg", "JPEG")
         
-    else:
-        await ctx.send("Modo incorreto, vai para Campo Alegre rapaz.")
+    print("Image converted!")
     
-    r = requests.get(url)
-    open("output.pdf", 'wb').write(r.content)
-        
-    # Converts the menu table to an image
-    image(school, excel(school))
+    await ctx.send(file = discord.File("menu.jpg"))
     
-    await ctx.send(file = discord.File(school + ".png"))
-    
-    print("Menu completed!")
-    
+    print("Menu completed!")  
+
 bot.run(TOKEN)
