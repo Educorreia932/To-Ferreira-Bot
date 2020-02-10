@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from datetime import date
 
 schools_names = {"FEUP": "Cantina de Engenharia",
                  "FMUP": "Cantina de S. João"}
@@ -20,5 +21,13 @@ def get_menu_pdf(school):
             schools[link.text] = "https://sigarra.up.pt/sasup/pt/" + link.get("href")
        
     file = requests.get(schools[schools_names[school]])
+    
     open("menu.pdf", "wb").write(file.content)
     
+# Auxiliary function to retrieve the menu's page correspondent to the current week
+def menu_page(school):
+    today = date.today().day
+    
+    week_number = (today - 1) // 7 + 1
+    
+    return week_number

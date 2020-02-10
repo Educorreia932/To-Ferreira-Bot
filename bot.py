@@ -2,7 +2,7 @@ import collections
 import discord
 
 from discord.ext import commands
-from get_menu_pdf import get_menu_pdf
+from get_menu_pdf import get_menu_pdf, menu_page
 from pdf2image import convert_from_path
 
 bot = commands.Bot(command_prefix='$')
@@ -112,7 +112,9 @@ async def ementa(ctx, school):
     
     print("Converting to image...")
     
-    pages = convert_from_path("menu.pdf", first_page = 2, last_page = 3)
+    page = menu_page(school)
+    
+    pages = convert_from_path("menu.pdf", first_page = page - 1, last_page = page)
     
     for page in pages:
         page.save("menu.jpg", "JPEG")
