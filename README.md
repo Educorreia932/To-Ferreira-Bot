@@ -1,5 +1,9 @@
 # Tó Ferreira Discord Bot
 
+## How to use
+
+Simply run `bot.py`and have a `token.txt` file containing the bot's token
+
 ## Commands
 
 |    Name    |              Description              |       Usage      |
