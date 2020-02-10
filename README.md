@@ -14,8 +14,9 @@ Simply run `bot.py`and have a `token.txt` file containing the bot's token
 
 ## Libraries Used
 
+- BeautifulSoup
 - Collections
-- [Discord.py](https://pypi.org/project/discord.py/)
+- [Discord](https://pypi.org/project/discord.py/)
 - [PyPDF2](https://pypi.org/project/PyPDF2/)
 - Requests
 
