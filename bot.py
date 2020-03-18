@@ -1,5 +1,6 @@
 import collections
 import discord
+import time
 
 from discord.ext import commands
 from get_menu_pdf import get_menu_pdf, menu_page
@@ -47,8 +48,13 @@ async def help(ctx):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def stats(ctx, mode):  
-    print("Retrieving stats...")
+async def stats(ctx, mode, display_time):  
+    print("stats")
+    
+    await ctx.send("Retrieving stats...")
+    
+    start_time = time.time()
+    
     channel = bot.get_channel(615941696072450055)
     counter = 1
     
@@ -72,13 +78,8 @@ async def stats(ctx, mode):
             msg += str(counter) + "º) " + user + ": " + str(users[user]) + "\n"
             counter += 1
             
-    if mode == "emojis":
+    elif mode == "emojis":
         emojis = {i : 0 for i in bot.emojis}
-        emojis["👌"] = 0
-        emojis["❤"] = 0
-        emojis["🤔"] = 0
-        emojis["💦"] = 0
-        emojis["👍"] = 0
         
         msg = "**Number of times that each emoji was used\n**"
         
@@ -97,9 +98,15 @@ async def stats(ctx, mode):
             msg += str(counter) + "º) " + str(emoji) + " : " + str(emojis[emoji]) + "\n"
             counter += 1
             
-    print("Stats completed!")
+    else:
+        print("Usage: stats emojis/messages <-time>")
             
+    total_time = time.time() - start_time
+    
     await ctx.send(msg[0:1990])
+    
+    if (display_time == "-time"):
+        await ctx.send("Stats completed in " + str(total_time) + " seconds")
     
 @bot.command()
 async def ementa(ctx, school):

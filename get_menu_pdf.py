@@ -20,6 +20,7 @@ def get_menu_pdf(school):
         for link in links:
             schools[link.text] = "https://sigarra.up.pt/sasup/pt/" + link.get("href")
        
+    print(schools[schools_names[school]])
     file = requests.get(schools[schools_names[school]])
     
     open("menu.pdf", "wb").write(file.content)
@@ -30,4 +31,4 @@ def menu_page(school):
     
     week_number = (today - 1) // 7 + 1
     
-    return week_number
+    return 0 # Temporary fix because SASUP
