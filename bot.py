@@ -1,8 +1,8 @@
+from menu import * 
+
 import discord
-import requests
 
 from discord.ext import commands
-from bs4 import BeautifulSoup
 
 bot = commands.Bot(command_prefix='$', description='Tó Ferreira Bot')
 
@@ -18,25 +18,8 @@ async def on_ready():
 
 @bot.command()
 async def menu(ctx, university):
-    URL = "https://sigarra.up.pt/sasup/pt/web_base.gera_pagina?P_pagina=265689"
-    university = university.upper()
-
-    canteens = {
-        "FEUP": "Cantina de Engenharia",
-        "FMUP": "Cantina de S. João"
-    }
-
-    # Retrieve menu's PDF link
-    res = requests.get(URL)
-    soup = BeautifulSoup(res.text, features="lxml")
-
-    menu_anchors = soup.select("div.mobile a")
-
-    for anchor in menu_anchors:
-        canteen_name = anchor.next
-
-        if canteen_name == canteens[university]:
-            pdf_url = "https://sigarra.up.pt/sasup/pt/" + anchor["href"]
+    retrieve_menu_pdf(university)
+    retrieve_menu_image(university)
 
     await ctx.send(canteens[university])
 
