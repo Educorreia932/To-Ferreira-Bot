@@ -1,135 +1,43 @@
-import collections
 import discord
-import time
+import requests
 
 from discord.ext import commands
-from get_menu_pdf import get_menu_pdf, menu_page
-from pdf2image import convert_from_path
+from bs4 import BeautifulSoup
 
-bot = commands.Bot(command_prefix='$')
-token_file = "token.txt"
+bot = commands.Bot(command_prefix='$', description='Tó Ferreira Bot')
 
-with open(token_file) as f:
-    TOKEN = f.read()
+TOKEN_LOCATION = "token.txt"
+
+with open(TOKEN_LOCATION) as token_file:
+    TOKEN = token_file.read()
 
 @bot.event
 async def on_ready():
-    print('Logged in as')
-    print(bot.user.name)
-    print(bot.user.id)
-    print('------')
+    print(f"\nDiscord.py Version: {discord.__version__}")
+    print(f"Logged in as: {bot.user.name} - {bot.user.id}")
 
 @bot.command()
-async def info(ctx):
-    embed = discord.Embed(title="nice bot", description="Nicest bot there is ever.", color=0xeee657)
+async def ementa(ctx, university):
+    URL = "https://sigarra.up.pt/sasup/pt/web_base.gera_pagina?P_pagina=265689"
+    university = university.upper()
 
-    # give info about you here
-    embed.add_field(name = "Author", value = "Skelozard")
+    canteen = {
+        "FEUP": "Cantina de Engenharia",
+        "FMUP": "Cantina de S. João"
+    }
 
-    # Shows the number of servers the bot is member of.
-    embed.add_field(name = "Server count", value = f"{len(bot.guilds)}")
+    # Retrieve menu's PDF link
+    res = requests.get(URL)
+    soup = BeautifulSoup(res.text)
 
-    # give users a link to invite thsi bot to their server
-    embed.add_field(name = "Invite", value = "[Invite link](<insert your OAuth invitation link here>)")
+    menu_anchors = soup.select("div.mobile a")
 
-    await ctx.send(embed = embed)
+    for anchor in menu_anchors:
+        canteen_name = anchor.next
 
-bot.remove_command('help')
+        if canteen_name == canteen[university]:
+            print(canteen_name)
 
-@bot.command()
-async def help(ctx):
-    embed = discord.Embed(title = "Tó Ferreira", description = "A Very Nice bot. List of commands are:", color=0xeee657)
-
-    #  ementa
-    embed.add_field(name = "$stats", value = "Gives stats about messages/emojis", inline = False)
-    embed.add_field(name = "$info", value = "Gives a little info about the bot", inline = False)
-    embed.add_field(name = "$help", value = "Gives this message", inline = False)
-
-    await ctx.send(embed=embed)
-
-@bot.command()
-async def stats(ctx, mode, display_time):  
-    print("stats")
-    
-    await ctx.send("Retrieving stats...")
-    
-    start_time = time.time()
-    
-    channel = bot.get_channel(615941696072450055)
-    counter = 1
-    
-    msg = "Modo incorreto, vai para Campo Alegre rapaz."
-    
-    if mode == "messages":
-        users = {}
-        msg = "**Number of messages per author:**\n"
-        
-        async for message in channel.history(limit = 50000):
-            if (message.author.name not in users):
-                users[message.author.name] = 1
-            
-            else:
-                users[message.author.name] += 1
-            
-        sorted_users = sorted(users.items(), key=lambda kv: kv[1], reverse = True)
-        users = collections.OrderedDict(sorted_users)
-            
-        for user in users:
-            msg += str(counter) + "º) " + user + ": " + str(users[user]) + "\n"
-            counter += 1
-            
-    elif mode == "emojis":
-        emojis = {i : 0 for i in bot.emojis}
-        
-        msg = "**Number of times that each emoji was used\n**"
-        
-        async for message in channel.history(limit = 50000):
-            for reaction in message.reactions:
-                for n in range(reaction.count):
-                    try:
-                        emojis[reaction.emoji] += 1
-                    except:
-                        continue                        
-
-        sorted_emojis = sorted(emojis.items(), key=lambda kv: kv[1], reverse = True)
-        emojis = collections.OrderedDict(sorted_emojis)
-
-        for emoji in emojis:    
-            msg += str(counter) + "º) " + str(emoji) + " : " + str(emojis[emoji]) + "\n"
-            counter += 1
-            
-    else:
-        print("Usage: stats emojis/messages <-time>")
-            
-    total_time = time.time() - start_time
-    
-    await ctx.send(msg[0:1990])
-    
-    if (display_time == "-time"):
-        await ctx.send("Stats completed in " + str(total_time) + " seconds")
-    
-@bot.command()
-async def ementa(ctx, school):
-    print("Retrieving menu...")
-    
-    if school != "FEUP" and school != "FMUP":
-        await ctx.send("Modo incorreto, vai para Campo Alegre rapaz.")    
-
-    get_menu_pdf(school)
-    
-    print("Converting to image...")
-    
-    page = menu_page(school)
-    
-    pages = convert_from_path("menu.pdf", first_page = page - 1, last_page = page)
-    
-    for page in pages:
-        page.save("menu.jpg", "JPEG")
-        
-    print("Image converted!")
-    
-    await ctx.send(file = discord.File("menu.jpg"))
-    
-    print("Menu completed!")  
+    await ctx.send(canteen[university])
 
 bot.run(TOKEN)
