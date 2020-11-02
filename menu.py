@@ -1,6 +1,7 @@
 import datetime
 import re
 import requests
+import urllib.parse
 
 from bs4 import BeautifulSoup
 from pdf2image import convert_from_path
@@ -42,7 +43,11 @@ def retrieve_menu_pdf(university):
         canteen_name = anchor.next
 
         if canteen_name == canteens[university]:
-            pdf_url = "https://sigarra.up.pt/sasup/pt/" + anchor["href"]
+            a = anchor["href"].split("/")
+
+            pdf_url = f"https://sigarra.up.pt/sasup/pt/{a[0]}/{urllib.parse.quote(a[1], encoding='windows-1252')}"
+
+    print(pdf_url)
 
     r = requests.get(pdf_url)
     open(university + ".pdf", 'wb').write(r.content)
@@ -81,3 +86,4 @@ def retrieve_menu_image(university):
 
     menu = convert_from_path(pdf_file, 500, first_page=page, last_page=page + 1)[0]
     menu.save('out.jpg', 'JPEG')
+

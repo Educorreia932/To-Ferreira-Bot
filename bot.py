@@ -21,6 +21,6 @@ async def menu(ctx, university):
     retrieve_menu_pdf(university)
     retrieve_menu_image(university)
 
-    await ctx.send(canteens[university])
+    await ctx.send(file=discord.File("out.jpg"))
 
 bot.run(TOKEN)
